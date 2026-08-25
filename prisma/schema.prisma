@@ -1,0 +1,71 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String            @id @default(cuid())
+  createdAt    DateTime          @default(now())
+  bodyProfile  BodyProfile?
+  items        ClothingItem[]
+  outfits      GeneratedOutfit[]
+}
+
+model BodyProfile {
+  id              String   @id @default(cuid())
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId          String   @unique
+  heightCm        Int
+  weightKg        Float
+  chestCm         Int?
+  underBustCm     Int?
+  waistCm         Int?
+  hipCm           Int?
+  shoulderCm      Int?
+  inseamCm        Int?
+  gender          String
+  bodyShape       String?
+  skinTone        String?
+  hairColor       String?
+  ageRange        String?
+  avatarImageBase String?
+  avatarOptions   Json?
+  updatedAt       DateTime @updatedAt
+}
+
+model ClothingItem {
+  id          String   @id @default(cuid())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  name        String
+  category    String
+  subcategory String?
+  material    String
+  size        String
+  color       String
+  styleTags   Json
+  season      Json
+  occasion    Json
+  fit         String?
+  brand       String?
+  notes       String?
+  imageData   String
+  createdAt   DateTime @default(now())
+}
+
+model GeneratedOutfit {
+  id         String   @id @default(cuid())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String
+  title      String
+  itemIds    Json
+  reasoning  String?
+  tryOnImage String?
+  prompt     String?
+  rating     Int?
+  createdAt  DateTime @default(now())
+}
