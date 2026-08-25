@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Bell, CircleHelp, LayoutDashboard, Shirt, Sparkles, UserRound } from '@/components/icons';
 import { cn } from '@/lib/utils';
+import { useWardrobe } from '@/components/state';
 
 const navItems = [
   { href: '/', label: 'Áttekintés', icon: LayoutDashboard },
@@ -14,6 +15,7 @@ const navItems = [
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const { items } = useWardrobe();
   const isTryOn = pathname.startsWith('/tryon');
 
   return (
@@ -34,7 +36,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             return (
               <Link key={item.href} href={item.href} className={cn('group flex h-11 items-center justify-between rounded-xl px-3 text-[13px] transition-colors', active ? 'bg-white text-[#1d1d1b]' : 'text-[#a8a6a0] hover:bg-white/10 hover:text-white')}>
                 <span className="flex items-center gap-3"><Icon size={17} strokeWidth={active ? 2.2 : 1.8} /><span>{item.label}</span></span>
-                {item.count && <span className={cn('text-[11px]', active ? 'text-[#8e8b84]' : 'text-[#6e6d68]')}>{item.count}</span>}
+                {item.count && <span className={cn('text-[11px]', active ? 'text-[#8e8b84]' : 'text-[#6e6d68]')}>{item.href === '/wardrobe' ? items.length : item.count}</span>}
                 {item.badge && <span className={cn('rounded-md px-1.5 py-0.5 text-[8px] font-bold tracking-wider', active ? 'bg-[#d7a19a] text-[#1d1d1b]' : 'bg-[#343431] text-[#a8a6a0]')}>{item.badge}</span>}
               </Link>
             );
@@ -43,10 +45,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
         <div className="mt-auto">
           <div className="mb-5 rounded-2xl bg-[#2a2a27] p-4">
-            <div className="mb-3 flex items-center justify-between"><span className="eyebrow text-[#8d8c86]">Gardrób állapot</span><span className="text-xs text-[#d7a19a]">72%</span></div>
-            <div className="mb-3 h-1.5 overflow-hidden rounded-full bg-[#44433f]"><div className="h-full w-[72%] rounded-full bg-[#d7a19a]" /></div>
-            <p className="text-[11px] leading-5 text-[#aaa8a1]">Már csak néhány alapdarab hiányzik a sokoldalúbb szettekhez.</p>
-            <Link href="/wardrobe/new" className="mt-3 inline-flex text-[11px] font-bold text-white underline decoration-[#d7a19a] underline-offset-4">Új darab hozzáadása</Link>
+            <div className="mb-3 flex items-center justify-between"><span className="eyebrow text-[#8d8c86]">Gardrób állapot</span><span className="text-xs text-[#d7a19a]">{items.length} db</span></div>
+            <div className="mb-3 h-1.5 overflow-hidden rounded-full bg-[#44433f]"><div className="h-full rounded-full bg-[#d7a19a] transition-all" style={{ width: `${Math.min(items.length * 8, 100)}%` }} /></div>
+            <p className="text-[11px] leading-5 text-[#aaa8a1]">{items.length === 0 ? 'A gardróbod még üres. Kezdd el a saját kollekcióddal.' : 'Már csak néhány alapdarab hiányzik a sokoldalúbb szettekhez.'}</p>
+            <Link href="/wardrobe/new" className="mt-3 inline-flex text-[11px] font-bold text-white underline decoration-[#d7a19a] underline-offset-4">{items.length === 0 ? 'Első darab hozzáadása' : 'Új darab hozzáadása'}</Link>
           </div>
           <div className="flex items-center gap-3 border-t border-white/10 px-2 pt-5">
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#c8d0c0] text-sm font-semibold text-[#425041]">N</div>

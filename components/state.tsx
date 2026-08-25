@@ -15,6 +15,7 @@ type WardrobeContextValue = {
 };
 
 const WardrobeContext = createContext<WardrobeContextValue | null>(null);
+const STORAGE_VERSION = 2;
 
 export function WardrobeProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState(seedItems);
@@ -27,9 +28,13 @@ export function WardrobeProvider({ children }: { children: React.ReactNode }) {
       const stored = window.localStorage.getItem('wardrobe-ai-state');
       if (stored) {
         const parsed = JSON.parse(stored);
-        if (parsed.items) setItems(parsed.items);
-        if (parsed.outfits) setOutfits(parsed.outfits);
-        if (parsed.profile) setProfile({ ...defaultProfile, ...parsed.profile });
+        if (parsed.version === STORAGE_VERSION) {
+          if (parsed.items) setItems(parsed.items);
+          if (parsed.outfits) setOutfits(parsed.outfits);
+          if (parsed.profile) setProfile({ ...defaultProfile, ...parsed.profile });
+        } else {
+          window.localStorage.removeItem('wardrobe-ai-state');
+        }
       }
     } catch (error) {
       console.warn('Could not restore wardrobe state', error);
@@ -40,7 +45,7 @@ export function WardrobeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!hydrated) return;
-    window.localStorage.setItem('wardrobe-ai-state', JSON.stringify({ items, outfits, profile }));
+    window.localStorage.setItem('wardrobe-ai-state', JSON.stringify({ version: STORAGE_VERSION, items, outfits, profile }));
   }, [items, outfits, profile, hydrated]);
 
   const value = useMemo(() => ({
